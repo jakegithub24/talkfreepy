@@ -255,7 +255,15 @@ $(document).ready(function() {
         $('#callStatus').text(`Calling ${username}...`);
         $('#outgoingCallModal').addClass('active');
         $('.overlay').addClass('active');
-        // Do NOT play ringtone here; only receiver should hear ringtone
+        // Do NOT start getUserMedia or createOffer yet; wait for call_accepted
+        // Only notify server to ring user
+        socket.emit('call_user', {user_id: userId});
+    }
+
+    // When callee accepts, then start WebRTC
+    socket.on('call_accepted', async function(data) {
+        showToast('Call accepted! Connecting...', 'success');
+        // Now start local audio and WebRTC offer
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (err) {
@@ -263,17 +271,12 @@ $(document).ready(function() {
             hideCallModals();
             return;
         }
-        await createPeerConnection(userId);
-        // Add local tracks to connection
+        await createPeerConnection(data.callee_id);
         localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-        // Create offer
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        // Send offer to callee via signaling
-        socket.emit('webrtc_offer', { target_id: userId, sdp: pc.localDescription });
-        // Also notify server to ring user (existing mechanism)
-        socket.emit('call_user', {user_id: userId});
-    }
+        socket.emit('webrtc_offer', { target_id: data.callee_id, sdp: pc.localDescription });
+    });
 
     function showIncomingCall(callerId, callerName) {
         currentCall = {callerId, callerName, direction: 'incoming'};
