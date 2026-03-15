@@ -279,18 +279,64 @@ def handle_call(data):
         'caller_name': current_user.username
     }, room=str(callee_id))
 
+# WebRTC signaling forwarding events
+@socketio.on('webrtc_offer')
+def webrtc_offer(data):
+    """Forward an SDP offer from caller to target user."""
+    target_id = data.get('target_id')
+    sdp = data.get('sdp')
+    if not target_id or not sdp:
+        return
+    # Forward offer to callee
+    socketio.emit('webrtc_offer', {'sdp': sdp, 'from': current_user.id}, room=str(target_id))
+
+@socketio.on('webrtc_answer')
+def webrtc_answer(data):
+    """Forward an SDP answer from callee back to caller."""
+    target_id = data.get('target_id')
+    sdp = data.get('sdp')
+    if not target_id or not sdp:
+        return
+    # Forward answer to caller
+    socketio.emit('webrtc_answer', {'sdp': sdp, 'from': current_user.id}, room=str(target_id))
+
+@socketio.on('webrtc_ice')
+def webrtc_ice(data):
+    """Forward ICE candidate to the peer."""
+    target_id = data.get('target_id')
+    candidate = data.get('candidate')
+    if not target_id or not candidate:
+        return
+    # Forward ICE candidate to peer
+    socketio.emit('webrtc_ice', {'candidate': candidate, 'from': current_user.id}, room=str(target_id))
+
 @socketio.on('accept_call')
 def handle_accept(data):
     caller_id = data.get('caller_id')
+    # Notify caller that callee accepted (SDP answer will follow via signaling)
     socketio.emit('call_accepted', {
         'callee_id': current_user.id,
         'callee_name': current_user.username
     }, room=str(caller_id))
-    caller = User.query.get(caller_id)
-    if caller:
-        caller.in_call = True
-    current_user.in_call = True
-    db.session.commit()
+    # Do NOT set in_call here; set after WebRTC connection is established (client-side)
+
+@socketio.on('set_in_call')
+def set_in_call(data):
+    # Called by client after WebRTC connection is established
+    user_id = data.get('user_id')
+    user = User.query.get(user_id)
+    if user:
+        user.in_call = True
+        db.session.commit()
+
+@socketio.on('set_not_in_call')
+def set_not_in_call(data):
+    # Called by client after call ends
+    user_id = data.get('user_id')
+    user = User.query.get(user_id)
+    if user:
+        user.in_call = False
+        db.session.commit()
 
 @socketio.on('reject_call')
 def handle_reject(data):
