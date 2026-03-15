@@ -41,6 +41,30 @@ $(document).ready(function() {
         }
     }
 
+    // ========== Toasts ==========
+    function showToast(message, type = 'info', delay = 4000) {
+        const toastId = 'toast-' + Date.now() + Math.floor(Math.random()*1000);
+        let icon = '';
+        if (type === 'success') icon = '<span class="me-2 text-success"><i class="bi bi-check-circle-fill"></i></span>';
+        else if (type === 'error') icon = '<span class="me-2 text-danger"><i class="bi bi-x-circle-fill"></i></span>';
+        else if (type === 'warning') icon = '<span class="me-2 text-warning"><i class="bi bi-exclamation-triangle-fill"></i></span>';
+        else icon = '<span class="me-2 text-primary"><i class="bi bi-info-circle-fill"></i></span>';
+        const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${delay}">
+          <div class="d-flex">
+            <div class="toast-body">${icon}${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>`;
+        $('#toastContainer').append(toastHtml);
+        const toastEl = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            $(toastEl).remove();
+        });
+    }
+
     // ========== Authentication Forms ==========
     $('#showRegister').click(function(e) {
         e.preventDefault();
@@ -60,7 +84,7 @@ $(document).ready(function() {
         }).done(function() {
             window.location.href = '/dashboard';
         }).fail(function(xhr) {
-            alert('Error: ' + xhr.responseJSON.error);
+            showToast(xhr.responseJSON.error, 'error');
         });
     });
 
@@ -70,10 +94,10 @@ $(document).ready(function() {
             password: $('#regPassword').val(),
             email: $('#regEmail').val()
         }).done(function() {
-            alert('Registration successful! Please login.');
+            showToast('Registration successful! Please login.', 'success');
             $('#showLogin').click();
         }).fail(function(xhr) {
-            alert('Error: ' + xhr.responseJSON.error);
+            showToast(xhr.responseJSON.error, 'error');
         });
     });
 
@@ -104,10 +128,10 @@ $(document).ready(function() {
                 contentType: 'application/json',
                 data: JSON.stringify({contact_id: contactId})
             }).done(function(resp) {
-                alert(resp.message);
+                showToast(resp.message, 'success');
                 loadPendingRequests();
             }).fail(function(xhr) {
-                alert('Error: ' + xhr.responseJSON.error);
+                showToast(xhr.responseJSON.error, 'error');
             });
         });
 
@@ -120,6 +144,7 @@ $(document).ready(function() {
                 contentType: 'application/json',
                 data: JSON.stringify({request_id: requestId, action: 'accept'})
             }).done(function() {
+                showToast('Request accepted', 'success');
                 loadPendingRequests();
                 loadContacts();
             });
@@ -131,6 +156,7 @@ $(document).ready(function() {
                 contentType: 'application/json',
                 data: JSON.stringify({request_id: requestId, action: 'reject'})
             }).done(function() {
+                showToast('Request rejected', 'warning');
                 loadPendingRequests();
             });
         });
@@ -151,6 +177,7 @@ $(document).ready(function() {
                 contentType: 'application/json',
                 data: JSON.stringify({contact_id: userId})
             }).done(function() {
+                showToast('User blocked', 'warning');
                 loadContacts();
             });
         }).on('click', '.unblock-user', function() {
@@ -161,6 +188,7 @@ $(document).ready(function() {
                 contentType: 'application/json',
                 data: JSON.stringify({contact_id: userId})
             }).done(function() {
+                showToast('User unblocked', 'success');
                 loadContacts();
             });
         });
@@ -169,6 +197,7 @@ $(document).ready(function() {
         $('#deleteAccount').click(function() {
             if (confirm('Are you sure? This cannot be undone.')) {
                 $.post('/api/delete_account').done(function() {
+                    showToast('Account deleted', 'success');
                     window.location.href = '/';
                 });
             }
@@ -230,7 +259,7 @@ $(document).ready(function() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (err) {
-            alert('Microphone access is required to make calls');
+            showToast('Microphone access is required to make calls', 'error');
             hideCallModals();
             return;
         }
@@ -256,11 +285,11 @@ $(document).ready(function() {
 
     async function acceptIncomingCall() {
         // Stop ringtone
-        stopRingtone();
+        stopIncomingRingtone();
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (err) {
-            alert('Microphone access is required to accept calls');
+            showToast('Microphone access is required to accept calls', 'error');
             hideCallModals();
             return;
         }
@@ -286,7 +315,7 @@ $(document).ready(function() {
         $('#activeCallUser').text(currentCall.username);
         // Set in_call state on server after connection
         socket.emit('set_in_call', {user_id: currentCall.userId});
-        alert('Call connected');
+        showToast('Call connected', 'success');
     }
 
     async function handleRemoteOffer(sdp, fromId) {
@@ -363,25 +392,25 @@ $(document).ready(function() {
 
     socket.on('call_accepted', function(data) {
         // server notifies caller that callee accepted; actual SDP answer will follow
-        console.log('Call accepted by', data.callee_name);
+        showToast('Call accepted! Connecting...', 'success');
     });
 
     socket.on('call_rejected', function(data) {
         cleanupCall();
         hideCallModals();
-        alert(`Call rejected: ${data.reason}`);
+        showToast(`Call rejected: ${data.reason}`, 'warning');
     });
 
     socket.on('call_ended', function() {
         cleanupCall();
         hideCallModals();
-        alert('Call ended by other party');
+        showToast('Call ended by other party', 'info');
     });
 
     socket.on('call_error', function(data) {
         cleanupCall();
         hideCallModals();
-        alert('Error: ' + data.message);
+        showToast('Error: ' + data.message, 'error');
     });
 
     // UI buttons
