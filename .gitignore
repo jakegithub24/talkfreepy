@@ -4,3 +4,4 @@ instance/
 
 rework/__pycache__/*
 rework/instance/*
+rework/myvenv/*
