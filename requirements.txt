@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-SocketIO
+Flask-Login
+Werkzeug
+itsdangerous
+python-socketio
+requests
+pytest

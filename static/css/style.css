@@ -1,0 +1,134 @@
+body {
+  background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+  color: #e6eef8;
+  font-family: Inter, 'Segoe UI', Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hero {
+  background: linear-gradient(135deg, rgba(58,123,213,0.15) 0%, rgba(99,102,241,0.12) 100%);
+  color: #e6eef8;
+  padding: 60px 0;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.hero h1 {
+  font-size: 2.6rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.hero p.lead {
+  opacity: 0.9;
+}
+
+.card {
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+}
+
+.card-header {
+  background: transparent;
+  color: #dbeafe;
+  border-bottom: none;
+}
+
+.form-control {
+  background: rgba(255,255,255,0.03);
+  color: #e6eef8;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.form-control::placeholder {
+  color: rgba(230,238,248,0.5);
+}
+
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #0ea5e9 0%, #6366f1 100%);
+  border: none;
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  border: none;
+  color: #04251a;
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
+  border: none;
+  color: white;
+}
+
+.list-group-item {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.03);
+  color: #e6eef8;
+}
+
+.online-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.online-indicator.online {
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52,211,153,0.22);
+}
+
+.online-indicator.in-call {
+  background: #fbbf24;
+  box-shadow: 0 0 8px rgba(251,191,36,0.18);
+}
+
+.online-indicator.offline {
+  background: #6b7280;
+}
+
+.navbar {
+  background: transparent;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+}
+
+.navbar .navbar-brand {
+  color: #e6eef8;
+  font-weight: 700;
+}
+
+.call-modal {
+  border-radius: 14px;
+}
+
+.overlay.active {
+  background: rgba(2,6,23,0.6);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 36px 0;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Footer small text */
+.footer-note {
+  color: rgba(230,238,248,0.6);
+  font-size: 0.9rem;
+}
