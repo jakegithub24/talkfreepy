@@ -19,36 +19,49 @@ def dashboard():
 
 @bp.route('/register', methods=['POST'])
 def register():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    email = request.form.get('email')
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    email = request.form.get('email', '').strip() or None
+    
     if not username or not password:
-        return jsonify({'error':'Required'}), 400
+        return jsonify({'error': 'Username and password are required'}), 400
+    
+    if len(username) < 3:
+        return jsonify({'error': 'Username must be at least 3 characters'}), 400
+    
+    if len(password) < 4:
+        return jsonify({'error': 'Password must be at least 4 characters'}), 400
+    
     if User.query.filter_by(username=username).first():
-        return jsonify({'error':'Exists'}), 400
+        return jsonify({'error': 'This username is already taken'}), 400
+    
+    if email and User.query.filter_by(email=email).first():
+        return jsonify({'error': 'This email is already registered'}), 400
+    
     user = User(username=username, email=email)
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
-    # If HTML form submit, redirect to landing/login
-    if request.content_type and 'application/json' not in request.content_type:
-        return redirect(url_for('main.landing'))
-    return jsonify({'message':'ok'})
+    return jsonify({'message': 'Account created successfully! Please log in.'}), 201
 
 @bp.route('/login', methods=['POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+    
     user = User.query.filter_by(username=username).first()
-    if user and user.check_password(password):
-        login_user(user)
-        if request.content_type and 'application/json' not in request.content_type:
-            return redirect(url_for('main.dashboard'))
-        return jsonify({'message':'ok'})
-    # On HTML form submission, redirect back with error
-    if request.content_type and 'application/json' not in request.content_type:
-        return render_template('landing.html', error='Invalid credentials')
-    return jsonify({'error':'Invalid'}), 401
+    
+    if not user:
+        return jsonify({'error': 'Invalid username or password'}), 401
+    
+    if not user.check_password(password):
+        return jsonify({'error': 'Invalid username or password'}), 401
+    
+    login_user(user)
+    return jsonify({'message': 'Login successful', 'redirect': '/dashboard'}), 200
 
 @bp.route('/logout')
 @login_required

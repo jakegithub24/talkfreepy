@@ -121,6 +121,11 @@ body {
 	color: #92400e;
 }
 
+.alert-success {
+	background: #d1fae5;
+	color: #065f46;
+}
+
 .alert-sm {
 	font-size: 0.9rem;
 }
