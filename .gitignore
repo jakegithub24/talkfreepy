@@ -1,3 +1,6 @@
-myvenv/
-__pyache__/
+myvenv/*
+__pycache__/*
 instance/
+
+rework/__pycache__/*
+rework/instance/*

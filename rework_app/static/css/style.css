@@ -1,0 +1,8 @@
+body { background: linear-gradient(180deg,#071021 0%, #0b1830 100%); color:#e6eef8; font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+.card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); }
+.footer-note { color: rgba(230,238,248,0.6); }
+.site-header { border-bottom: 1px solid rgba(255,255,255,0.03); }
+.brand { color: #fff; font-weight:600; text-decoration:none; font-size:1.1rem }
+.muted { color: rgba(230,238,248,0.7); }
+.form-control { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef8 }
+.btn-primary { background: #1f6feb; border: none }
