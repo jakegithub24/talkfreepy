@@ -27,9 +27,12 @@ def register():
     if User.query.filter_by(username=username).first():
         return jsonify({'error':'Exists'}), 400
     user = User(username=username, email=email)
-    user.password_hash = password  # replace with hashed in real implementation
+    user.set_password(password)
     db.session.add(user)
     db.session.commit()
+    # If HTML form submit, redirect to landing/login
+    if request.content_type and 'application/json' not in request.content_type:
+        return redirect(url_for('main.landing'))
     return jsonify({'message':'ok'})
 
 @bp.route('/login', methods=['POST'])
@@ -37,9 +40,14 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     user = User.query.filter_by(username=username).first()
-    if user and user.password_hash == password:
+    if user and user.check_password(password):
         login_user(user)
+        if request.content_type and 'application/json' not in request.content_type:
+            return redirect(url_for('main.dashboard'))
         return jsonify({'message':'ok'})
+    # On HTML form submission, redirect back with error
+    if request.content_type and 'application/json' not in request.content_type:
+        return render_template('landing.html', error='Invalid credentials')
     return jsonify({'error':'Invalid'}), 401
 
 @bp.route('/logout')
@@ -53,4 +61,14 @@ def logout():
 @login_required
 def api_contacts():
     contacts = Contact.query.filter_by(user_id=current_user.id, status='accepted').all()
-    return jsonify([{'id':c.contact_id} for c in contacts])
+    result = []
+    for c in contacts:
+        user = User.query.get(c.contact_id)
+        if user:
+            result.append({
+                'id': user.id,
+                'username': user.username,
+                'online': user.online,
+                'in_call': user.in_call
+            })
+    return jsonify(result)

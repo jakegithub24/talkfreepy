@@ -1,9 +1,42 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard - talkfreepy{% endblock %}
 {% block content %}
-<h3>Welcome, {{ user.username }}</h3>
-<p class="small footer-note">This scaffold demonstrates separated structure. Copy over logic as needed.</p>
-<div id="contactsArea" class="mt-3">
-  <p>Contacts will appear here.</p>
+<div class="mb-4">
+  <h3 class="mb-1">Dashboard</h3>
+  <p class="small footer-note">Welcome, <strong>{{ user.username }}</strong></p>
 </div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header p-3 border-bottom" style="border-color: #e6e7eb;">
+        <h5 class="m-0">Your Contacts</h5>
+      </div>
+      <ul id="contactsList" class="contact-list">
+        <li class="contact-item py-3">
+          <div class="text-center w-100">
+            <small class="text-muted">Loading contacts…</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header p-3 border-bottom" style="border-color: #e6e7eb;">
+        <h5 class="m-0">Status</h5>
+      </div>
+      <div class="p-3">
+        <div class="mb-2">
+          <small class="text-muted">Your status</small>
+          <div><span class="badge bg-success">Online</span></div>
+        </div>
+        <hr style="border-color: #e6e7eb; margin: 1rem 0;">
+        <p class="small text-muted mb-0">This prototype demonstrates the basic dashboard layout and contact list functionality.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
